@@ -6,6 +6,7 @@ V2026.3.11更新
 3.默认关闭偷鸡功能
 4.本版本仅适配 普达特量化交易信号激进版
 POWER By 王大哥
+需要安装的库 pip install asyncio telethon ccxt nest_asyncio pytz python-okx
 """
 
 
@@ -40,20 +41,20 @@ nest_asyncio.apply()
 #----------------------API配置部分---------------------------------
 
 # Telegram 配置 https://my.telegram.org/auth
-api_id = 'xxxxxxxxxx'
-api_hash = 'xxxxxxxxxx'
-phone_number = '+8613666666666'
+api_id = '323232323'
+api_hash = 'd7f4020202020202'
+phone_number = '+8613838383388'
 
 # 监听群组和发送消息频道 ID,普哥跟单群 1001911467666
 #返回消息机器人申请：https://teleme.io/articles/create_your_own_telegram_bot?hl=zh-hans
-GROUP_IDS = [-00000000000000,-000000000] # 接收信号（第二个群组为自己新建的群组，用于测试和发送指令）
-CHANNEL_ID = -0000000000      # 返回信号到指定群组 （可以单独开发 钉钉机器人群组）
+GROUP_IDS = [-1003744731129,-00000000000] # 接收信号（第二个群组为自己新建的群组，用于测试和发送指令）
+CHANNEL_ID = -1000000000000      # 返回信号到指定群组 （可以单独开发 钉钉机器人群组）
 #----------------------实盘模拟盘切换---------------------------------
-api_key = '2222222222'
-secret_key = '3333333333'
-passphrase = '3333333'
+api_key = '2222'
+secret_key = '22222'
+passphrase = '22222'
 flag = '0'  # 0 实盘，1 模拟盘
-leverage = 1 #默认1倍  普哥跟单数量比例，输入1，就一比一开平仓，输入2就一比二开平仓，取消了8张的限制，完全一比（一*倍数）开平
+leverage = 10 #默认10  解释（ 0.1BTC * 10 = 1张 ）
 
 #---------------------- 初始化客户端 ---------------------------------
 #accountAPI = AccountAPI(api_key, secret_key, passphrase, True, flag)
@@ -120,7 +121,7 @@ if not main_logger.hasHandlers():
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
     # 保存日志到文件
-    file_handler = logging.FileHandler('main7.log', mode='a', encoding='utf-8')
+    file_handler = logging.FileHandler('jijin.log', mode='a', encoding='utf-8')
     file_handler.setFormatter(formatter)
     main_logger.addHandler(file_handler)
 
@@ -682,33 +683,52 @@ async def place_order(client, symbol, action, amount):
 # 新增解析信号逻辑
 def parse_new_signal(text):
     """
-    解析新格式信号，返回 (action, lots, symbol) 或 None
+    解析新格式信号（逐行解析，更可靠）
+    返回 (action, lots, symbol) 或 None
     action: '开多','开空','平多','平空'
-    lots: float 数量
+    lots: float 数量（已乘以 100，转换为张数）
     symbol: str 交易对，如 'BTC-USDT-SWAP'
     """
-    # 匹配方括号中的动作和Lots值（支持跨行）
-    pattern = r'^\s*Fast Version.*?\n\s*\[(Open Sell|Close Sell|Open Buy|Close Buy)\]\s*\n.*?Lots:\s*([\d.]+).*?Symbol:\s*(\w+)'
-    match = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
-    if match:
-        action_str = match.group(1)
-        lots = float(match.group(2)) * 100 # 这里乘以100倍，按照开仓单位张数计算
-        symbol_base = BTC-USDT-SWAP #match.group(3) 默认BTC 永续合约
-        # 映射动作
-        action_map = {
-            "Open Sell": "开空",
-            "Close Sell": "平空",
-            "Open Buy": "开多",
-            "Close Buy": "平多"
-        }
-        action = action_map.get(action_str)
-        if not action:
-            return None
-        # 补全交易对（若已是完整格式则保留）
-        if symbol_base.endswith("-USDT-SWAP"):
-            symbol = symbol_base
-        else:
-            symbol = f"{symbol_base}-USDT-SWAP"
+    lines = text.strip().split('\n')
+    if not lines:
+        return None
+
+    # 第一行应为 "Fast Version1.0" 或类似开头
+    if not lines[0].startswith('Fast Version'):
+        return None
+
+    action = None
+    symbol = None
+    lots = None
+
+    for line in lines:
+        line = line.strip()
+        if line.startswith('[Open Sell]'):
+            action = "开空"
+        elif line.startswith('[Close Sell]'):
+            action = "平空"
+        elif line.startswith('[Open Buy]'):
+            action = "开多"
+        elif line.startswith('[Close Buy]'):
+            action = "平多"
+        elif line.startswith('Symbol:'):
+            # 提取基础币种，如 BTC
+            base = line.split(':', 1)[1].strip()
+            # 补全为永续合约交易对
+            if base.endswith('-USDT-SWAP'):
+                symbol = base
+            else:
+                symbol = f"{base}-USDT-SWAP"
+        elif line.startswith('Lots:'):
+            try:
+                lots = float(line.split(':', 1)[1].strip())
+                # 将手数转换为张数（假设 1 手 = 100 张）
+                lots = round(lots * leverage, 1)  # 保留一位小数
+            except ValueError:
+                pass
+
+    # 必须同时存在 action、symbol、lots 才认为是有效信号
+    if action and symbol and lots is not None:
         return action, lots, symbol
     return None
 
