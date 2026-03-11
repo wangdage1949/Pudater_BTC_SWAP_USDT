@@ -36,6 +36,10 @@ pip install asyncio telethon nest_asyncio pytz python-okx
 
 3、OKX的实盘/模拟盘 API
 
+最后，把  waigua_官方库_默认偷鸡功能关闭-激进版本.py  修改名称为 waigua.py 
+
+双击执行目录中的 qidong.bat 即可上线。
+
 
 修改示例
 
