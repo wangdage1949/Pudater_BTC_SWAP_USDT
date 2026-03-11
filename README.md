@@ -9,6 +9,9 @@ Second 获取群组的ID
 
 Third 修改对应的群组ID 以及 API。
 
+<img width="1123" height="373" alt="image" src="https://github.com/user-attachments/assets/ddb95aff-e91e-4904-9191-595fbebea045" />
+
+
 关键逻辑展示
 
 <img width="553" height="167" alt="image" src="https://github.com/user-attachments/assets/c3b2ae2a-28ac-47bf-a8c3-9114a24c049c" />
