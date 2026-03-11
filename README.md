@@ -33,7 +33,7 @@ ccxt 库已取消
 
 1、Telegrame 对应的 API
 
-2、跟单群组ID和测试群组ID和返回信号的劝阻ID
+2、跟单群组ID和测试群组ID和返回信号的群组ID
 
 3、OKX的实盘/模拟盘 API
 
