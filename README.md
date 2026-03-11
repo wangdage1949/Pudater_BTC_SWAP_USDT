@@ -9,4 +9,35 @@ Second 获取群组的ID
 
 Third 修改对应的群组ID 以及 API。
 
+关键逻辑展示
+
+<img width="553" height="167" alt="image" src="https://github.com/user-attachments/assets/c3b2ae2a-28ac-47bf-a8c3-9114a24c049c" />
+
+<img width="554" height="127" alt="image" src="https://github.com/user-attachments/assets/09a7c0c9-b914-41f2-8486-761232432409" />
+
+<img width="554" height="87" alt="image" src="https://github.com/user-attachments/assets/d45f5afe-3ef3-411b-9d8f-5d047eb84a49" />
+
+<img width="553" height="92" alt="image" src="https://github.com/user-attachments/assets/8090b693-febe-484d-b8d1-75dc6f1029c4" />
+
+async def monitor_short_positions(symbol): 空单外挂监控函数（异步）
+async def monitor_long_positions(symbol):  多单外挂监控函数（异步）
+<img width="553" height="309" alt="image" src="https://github.com/user-attachments/assets/15c8e640-b4ff-4b7c-9c6e-eb5e6abcc76e" />
+
+async def handle_message(message, client): 监听函数：自行修改实际开仓平仓张数设定
+本函数已加固了特殊场景（双向持仓偷鸡功能）
+
+<img width="554" height="458" alt="image" src="https://github.com/user-attachments/assets/4724b894-04d3-4084-bad7-b1853415b1bb" />
+
+<img width="554" height="337" alt="image" src="https://github.com/user-attachments/assets/75b5c1a5-f24c-4ae8-be66-348f7fb803b8" />
+
+<img width="554" height="276" alt="image" src="https://github.com/user-attachments/assets/0771f2fd-47ea-4307-af91-17a3080fbab4" />
+
+<img width="554" height="188" alt="image" src="https://github.com/user-attachments/assets/367b5095-9a80-4534-abef-690ec2e2c9b7" />
+
+<img width="554" height="396" alt="image" src="https://github.com/user-attachments/assets/d79aacd2-5d52-4328-82d3-dbc619a8d64e" />
+
+<img width="554" height="497" alt="image" src="https://github.com/user-attachments/assets/bc8407b7-0c85-4263-8c61-e58f29e06361" />
+
+<img width="554" height="410" alt="image" src="https://github.com/user-attachments/assets/d2b3d1c1-7a66-4a99-8d49-7936967ac316" />
+
 <img width="544" height="698" alt="image" src="https://github.com/user-attachments/assets/616223e5-5e7c-4065-8767-0734502f8da5" />
