@@ -5,7 +5,9 @@ V2026.3.11更新
 2.优化了飞机长时间握手的垃圾信息显示
 3.默认关闭偷鸡功能
 4.本版本仅适配 普达特量化交易信号激进版
-POWER By 王大哥
+5.优化了不识别新信号的逻辑
+6.优化了跟单倍数（此处默认开仓单位为张数，普哥信号0.1 单位： BTC 对应信号转换 ---------- 0.1 * leverage（默认10） = 1 单位：张，请根据实际保证金自行调整。
+POWER By 王大哥 Telegrame: wangdage1949
 需要安装的库 pip install asyncio telethon ccxt nest_asyncio pytz python-okx
 """
 
@@ -723,7 +725,7 @@ def parse_new_signal(text):
             try:
                 lots = float(line.split(':', 1)[1].strip())
                 # 将手数转换为张数（假设 1 手 = 100 张）
-                lots = round(lots * leverage, 1)  # 保留一位小数
+                lots = round(lots * leverage, 1)  # 保留一位小数 0.1单位BTC = 0.1 * leverage（默认10） = 1单位张
             except ValueError:
                 pass
 
