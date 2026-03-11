@@ -20,10 +20,13 @@ Third 修改对应的群组ID 以及 API。
 <img width="553" height="92" alt="image" src="https://github.com/user-attachments/assets/8090b693-febe-484d-b8d1-75dc6f1029c4" />
 
 async def monitor_short_positions(symbol): 空单外挂监控函数（异步）
+
 async def monitor_long_positions(symbol):  多单外挂监控函数（异步）
+
 <img width="553" height="309" alt="image" src="https://github.com/user-attachments/assets/15c8e640-b4ff-4b7c-9c6e-eb5e6abcc76e" />
 
 async def handle_message(message, client): 监听函数：自行修改实际开仓平仓张数设定
+
 本函数已加固了特殊场景（双向持仓偷鸡功能）
 
 <img width="554" height="458" alt="image" src="https://github.com/user-attachments/assets/4724b894-04d3-4084-bad7-b1853415b1bb" />
