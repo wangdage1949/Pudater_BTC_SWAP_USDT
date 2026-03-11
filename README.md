@@ -47,6 +47,11 @@ pip install asyncio telethon nest_asyncio pytz python-okx
 ---------------------------------------------------------------------------------------------------
 
 项目关键展示
+
+你可以向 测试消息的群组发送的指令有这么多
+
+["暂停", "重启", "开启偷鸡", "关闭偷鸡", "运行时间"] 
+
 <img width="553" height="167" alt="image" src="https://github.com/user-attachments/assets/c3b2ae2a-28ac-47bf-a8c3-9114a24c049c" />
 
 <img width="554" height="127" alt="image" src="https://github.com/user-attachments/assets/09a7c0c9-b914-41f2-8486-761232432409" />
