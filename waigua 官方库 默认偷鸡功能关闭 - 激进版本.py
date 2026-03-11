@@ -6,7 +6,8 @@ V2026.3.11更新
 3.默认关闭偷鸡功能
 4.本版本仅适配 普达特量化交易信号激进版
 5.优化了不识别新信号的逻辑
-6.优化了跟单倍数（此处默认开仓单位为张数，普哥信号0.1 单位： BTC 对应信号转换 ---------- 0.1 * leverage（默认10） = 1 单位：张，请根据实际保证金自行调整。
+6.补仓逻辑已删除
+7.优化了跟单倍数（此处默认开仓单位为张数，普哥信号0.1 单位： BTC 对应信号转换 ---------- 0.1 * leverage（默认10） = 1 单位：张，请根据实际保证金自行调整。
 POWER By 王大哥 Telegrame: wangdage1949
 需要安装的库 pip install asyncio telethon ccxt nest_asyncio pytz python-okx
 """
@@ -921,3 +922,4 @@ async def main():
 # 启动事件循环
 if __name__ == '__main__':
     asyncio.run(main())  # 使用 asyncio.run() 启动事件循环
+
