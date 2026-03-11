@@ -16,7 +16,7 @@ windows/linux/ubuntu
 
 pip install asyncio telethon nest_asyncio pytz python-okx 
 
-# ccxt 库已取消
+ccxt 库已取消
 ”
 
 
