@@ -3,7 +3,7 @@
 
 First python 3.11 版本及以上
 你能用到的库
-pip install asyncio telethon ccxt nest_asyncio pytz python-okx
+pip install asyncio telethon nest_asyncio pytz python-okx  # ccxt 库已取消
 
 Second 获取群组的ID
 
