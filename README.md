@@ -1,4 +1,34 @@
+# V1.0.2更新说明
+
+1.修复了全部平仓无LOTS返回的窘境（重要）
+
+       “ if new_signal:
+            action, raw_quantity, symbol = new_signal
+            main_logger.info(f"解析新格式信号: action={action}, quantity={raw_quantity}, symbol={symbol}")
+            suffix = ""  # 新格式无附加信息
+
+            # ----- 新增：处理无数量平仓 -----
+            if raw_quantity is None:
+                if action == "平多":
+                    # 获取当前多单总持仓
+                    total_qty = sum(pos['quantity'] for pos in long_positions)
+                    raw_quantity = total_qty if total_qty <= 0 else long_lots  # 获取当前多单持仓数量 + 防守兜底
+                    main_logger.info(f"准备平多：当前持仓量: {raw_quantity} 张")
+                elif action == "平空":
+                    total_qty = sum(pos['quantity'] for pos in short_positions)
+                    raw_quantity = total_qty if total_qty <= 0 else short_lots # 获取当前空单持仓数量 + 防守兜底
+                    main_logger.info(f"准备平空，当前持仓量: {raw_quantity} 张")
+                else:
+                    # 开仓信号绝对不能缺数量
+                    await client.send_message(CHANNEL_ID, f"开仓信号缺少数量，无法执行: {message_text}")
+                    return ”
+
+2.修改了跟单倍数策略,此处默认开仓单位为张数，不是BTC，请确认！！！
+
+普哥信号0.1 单位： BTC 对应信号转换 ---------- 0.1 * leverage（默认10） = 1 单位：张，请根据实际保证金自行调整。
+
 # Pudater_BTC_SWAP_USDT
+
 普达特量化交易激进版跟单机器人系统要求
 
 windows/linux/ubuntu
