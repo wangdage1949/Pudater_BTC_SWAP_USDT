@@ -7,7 +7,8 @@ V2026.3.11更新
 4.本版本仅适配 普达特量化交易信号激进版
 5.优化了不识别新信号的逻辑
 6.补仓逻辑已删除
-7.优化了跟单倍数（此处默认开仓单位为张数，普哥信号0.1 单位： BTC 对应信号转换 ---------- 0.1 * leverage（默认10） = 1 单位：张，请根据实际保证金自行调整。
+7.修改了跟单倍数策略（此处默认开仓单位为张数，不是BTC，请确认！！！普哥信号0.1 单位： BTC 对应信号转换 ---------- 0.1 * leverage（默认10） = 1 单位：张，请根据实际保证金自行调整。
+8.修复了全部平仓无LOTS返回的窘境
 POWER By 王大哥 Telegrame: wangdage1949
 需要安装的库 pip install asyncio telethon ccxt nest_asyncio pytz python-okx
 """
@@ -57,7 +58,7 @@ api_key = '2222'
 secret_key = '22222'
 passphrase = '22222'
 flag = '0'  # 0 实盘，1 模拟盘
-leverage = 10 #默认10  解释（ 0.1BTC * 10 = 1张 ）
+leverage = 10 #默认1倍  解释（ 0.1BTC * 10 = 1张 ）
 
 #---------------------- 初始化客户端 ---------------------------------
 #accountAPI = AccountAPI(api_key, secret_key, passphrase, True, flag)
@@ -88,6 +89,8 @@ client = None  # 初始化全局 client 变量，用于发送消息
 monitoring_long_positions = False  # 多单监控任务标志
 monitoring_short_positions = False  # 空单监控任务标志
 lock = threading.Lock() #减仓仓位锁
+long_lots = 0 # 累计开多张数
+short_lots = 0 # 累计开空张数
 
 
 
@@ -584,6 +587,7 @@ async def handle_replenish(symbol, positions, real_time_price, loss, action, qua
 async def place_order(client, symbol, action, amount):
     global initial_balance, long_positions, short_positions
     global paused, monitoring_long_positions, monitoring_short_positions
+    global long_lots, short_lots
     if paused:  # 检查是否处于暂停状态
         main_logger.info("当前已暂停，跳过下单")
         return None
@@ -667,10 +671,12 @@ async def place_order(client, symbol, action, amount):
             if '平多' in action:
                 main_logger.error(f"平多操作失败，未找到持仓，清空多单仓位记录")
                 long_positions.clear()
+                long_lots = 0  # long_lots 被清零
                 console_logger.info(f"已清空多单仓位记录: {long_positions}")
             elif '平空' in action:
                 main_logger.error(f"平空操作失败，未找到持仓，清空空单仓位记录")
                 short_positions.clear()
+                short_lots = 0 # short_lots 被清零
                 console_logger.info(f"已清空空单仓位记录: {short_positions}")
 
             # 发送消息到 Telegram 通道
@@ -687,10 +693,7 @@ async def place_order(client, symbol, action, amount):
 def parse_new_signal(text):
     """
     解析新格式信号（逐行解析，更可靠）
-    返回 (action, lots, symbol) 或 None
-    action: '开多','开空','平多','平空'
-    lots: float 数量（已乘以 100，转换为张数）
-    symbol: str 交易对，如 'BTC-USDT-SWAP'
+    open buy /open sell /close buy /close sell
     """
     lines = text.strip().split('\n')
     if not lines:
@@ -730,8 +733,8 @@ def parse_new_signal(text):
             except ValueError:
                 pass
 
-    # 必须同时存在 action、symbol、lots 才认为是有效信号
-    if action and symbol and lots is not None:
+    # 必须同时存在 action、symbol 才认为是有效信号 lots 不存在也无所谓，已手动用 long_lots 和 short_lots 记录
+    if action and symbol is not None:
         return action, lots, symbol
     return None
 
@@ -739,6 +742,7 @@ def parse_new_signal(text):
 # 处理消息函数
 async def handle_message(message, client):
     global leverage, paused, conservative_mode, long_positions, short_positions
+    global long_lots, short_lots
     try:
         # 获取消息内容
         message_text = message.text.strip() if hasattr(message, 'text') else message.strip()
@@ -767,6 +771,23 @@ async def handle_message(message, client):
             action, raw_quantity, symbol = new_signal
             main_logger.info(f"解析新格式信号: action={action}, quantity={raw_quantity}, symbol={symbol}")
             suffix = ""  # 新格式无附加信息
+
+            # ----- 新增：处理无数量平仓 -----
+            if raw_quantity is None:
+                if action == "平多":
+                    # 获取当前多单总持仓
+                    total_qty = sum(pos['quantity'] for pos in long_positions)
+                    raw_quantity = total_qty if total_qty <= 0 else long_lots  # 获取当前多单持仓数量 + 防守兜底
+                    main_logger.info(f"准备平多：当前持仓量: {raw_quantity} 张")
+                elif action == "平空":
+                    total_qty = sum(pos['quantity'] for pos in short_positions)
+                    raw_quantity = total_qty if total_qty <= 0 else short_lots # 获取当前空单持仓数量 + 防守兜底
+                    main_logger.info(f"准备平空，当前持仓量: {raw_quantity} 张")
+                else:
+                    # 开仓信号绝对不能缺数量
+                    await client.send_message(CHANNEL_ID, f"开仓信号缺少数量，无法执行: {message_text}")
+                    return
+                
         else:
             # 旧格式解析
             contains_laowang = "老王" in message_text
@@ -851,10 +872,18 @@ async def handle_message(message, client):
             # 重置多单和空单的持仓
             if action == '平多':
                 long_positions = []
+                long_lots = 0 # 备用多单仓位数量计数清零
                 main_logger.info("平多后，已重置多单持仓信息。")
             elif action == '平空':
                 short_positions = []
+                short_lots = 0 # 备用空单仓位计数清零
                 main_logger.info("平空后，已重置空单持仓信息。")
+            elif action == '开多':
+                long_lots += adjusted_quantity  
+                main_logger.info(f"开多张数累计:{long_lots}。")
+            elif action == '开空':
+                short_lots += adjusted_quantity
+                main_logger.info(f"开空张数累计：{short_lots}。")
         else:
             main_logger.error(f"下单失败: action={action}, quantity={adjusted_quantity}")
             await client.send_message(CHANNEL_ID, f"下单失败: {action} {adjusted_quantity} 张")
@@ -922,5 +951,4 @@ async def main():
 # 启动事件循环
 if __name__ == '__main__':
     asyncio.run(main())  # 使用 asyncio.run() 启动事件循环
-
 
