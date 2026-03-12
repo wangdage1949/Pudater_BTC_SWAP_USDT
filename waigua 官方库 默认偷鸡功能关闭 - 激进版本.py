@@ -49,7 +49,6 @@ api_id = '323232323'
 api_hash = 'd7f4020202020202'
 phone_number = '+8613838383388'
 
-# 监听群组和发送消息频道 ID,普哥跟单群 1001911467666
 #返回消息机器人申请：https://teleme.io/articles/create_your_own_telegram_bot?hl=zh-hans
 GROUP_IDS = [-0003744731100,-00000000000] # 接收信号（第二个群组为自己新建的群组，用于测试和发送指令）
 CHANNEL_ID = -1000000000000      # 返回信号到指定群组 （可以单独开发 钉钉机器人群组）
@@ -951,4 +950,5 @@ async def main():
 # 启动事件循环
 if __name__ == '__main__':
     asyncio.run(main())  # 使用 asyncio.run() 启动事件循环
+
 
