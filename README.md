@@ -2,9 +2,7 @@
 
 1.修复了普达特平仓信号，新增 Close Lot 参数的识别功能（重要）
 
-# V1.0.2更新说明
-
-“def parse_new_signal(text):
+    ”def parse_new_signal(text):
     lines = text.strip().split('\n')
     if not lines:
         return None
@@ -54,7 +52,10 @@
             # 如果close_lot为None，保持原有lots（可能为None）
         return action, lots, symbol
     return None
-”
+    
+    “
+
+# V1.0.2更新说明
 
 1.修复了全部平仓无LOTS返回的窘境（重要）
 
