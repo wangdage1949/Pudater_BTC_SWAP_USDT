@@ -1,5 +1,8 @@
 # V1.0.3更新说明
 
+<img width="451" height="543" alt="image" src="https://github.com/user-attachments/assets/9fc4371d-51b8-4674-af49-16228c7613d0" />
+
+
 1.修复了普达特平仓信号，新增 Close Lot 参数的识别功能（重要）
 
     ”def parse_new_signal(text):
