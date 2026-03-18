@@ -4,6 +4,58 @@
 
 # V1.0.2更新说明
 
+“def parse_new_signal(text):
+    lines = text.strip().split('\n')
+    if not lines:
+        return None
+
+    if not lines[0].startswith('Fast Version'):
+        return None
+
+    action = None
+    symbol = None
+    lots = None
+    close_lot = None  # 新增变量
+
+    for line in lines:
+        line = line.strip()
+        if line.startswith('[Open Sell]'):
+            action = "开空"
+        elif line.startswith('[Close Sell]'):
+            action = "平空"
+        elif line.startswith('[Open Buy]'):
+            action = "开多"
+        elif line.startswith('[Close Buy]'):
+            action = "平多"
+        elif line.startswith('Symbol:'):
+            base = line.split(':', 1)[1].strip()
+            if base.endswith('-USDT-SWAP'):
+                symbol = base
+            else:
+                symbol = f"{base}-USDT-SWAP"
+        elif line.startswith('Lots:'):
+            try:
+                lots = float(line.split(':', 1)[1].strip())
+                lots = round(lots * leverage, 1)
+            except ValueError:
+                pass
+        elif line.startswith('Close Lot:'):  # 新增解析
+            try:
+                close_lot = float(line.split(':', 1)[1].strip())
+                close_lot = round(close_lot * leverage, 1)
+            except ValueError:
+                pass
+
+    if action and symbol is not None:
+        # 如果是平仓，优先使用close_lot；否则使用lots
+        if action in ("平多", "平空"):
+            if close_lot is not None:
+                lots = close_lot
+            # 如果close_lot为None，保持原有lots（可能为None）
+        return action, lots, symbol
+    return None
+”
+
 1.修复了全部平仓无LOTS返回的窘境（重要）
 
        “ if new_signal:
