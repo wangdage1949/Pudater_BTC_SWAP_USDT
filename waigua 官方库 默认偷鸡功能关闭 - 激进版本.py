@@ -690,21 +690,17 @@ async def place_order(client, symbol, action, amount):
 
 # 新增解析信号逻辑
 def parse_new_signal(text):
-    """
-    解析新格式信号（逐行解析，更可靠）
-    open buy /open sell /close buy /close sell
-    """
     lines = text.strip().split('\n')
     if not lines:
         return None
 
-    # 第一行应为 "Fast Version1.0" 或类似开头
     if not lines[0].startswith('Fast Version'):
         return None
 
     action = None
     symbol = None
     lots = None
+    close_lot = None  # 新增变量
 
     for line in lines:
         line = line.strip()
@@ -717,9 +713,7 @@ def parse_new_signal(text):
         elif line.startswith('[Close Buy]'):
             action = "平多"
         elif line.startswith('Symbol:'):
-            # 提取基础币种，如 BTC
             base = line.split(':', 1)[1].strip()
-            # 补全为永续合约交易对
             if base.endswith('-USDT-SWAP'):
                 symbol = base
             else:
@@ -727,13 +721,22 @@ def parse_new_signal(text):
         elif line.startswith('Lots:'):
             try:
                 lots = float(line.split(':', 1)[1].strip())
-                # 将手数转换为张数（假设 1 手 = 100 张）
-                lots = round(lots * leverage, 1)  # 保留一位小数 0.1单位BTC = 0.1 * leverage（默认10） = 1单位张
+                lots = round(lots * leverage, 1)
+            except ValueError:
+                pass
+        elif line.startswith('Close Lot:'):  # 新增解析
+            try:
+                close_lot = float(line.split(':', 1)[1].strip())
+                close_lot = round(close_lot * leverage, 1)
             except ValueError:
                 pass
 
-    # 必须同时存在 action、symbol 才认为是有效信号 lots 不存在也无所谓，已手动用 long_lots 和 short_lots 记录
     if action and symbol is not None:
+        # 如果是平仓，优先使用close_lot；否则使用lots
+        if action in ("平多", "平空"):
+            if close_lot is not None:
+                lots = close_lot
+            # 如果close_lot为None，保持原有lots（可能为None）
         return action, lots, symbol
     return None
 
