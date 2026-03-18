@@ -45,7 +45,7 @@
                 pass
 
     if action and symbol is not None:
-        # 如果是平仓，优先使用close_lot；否则使用lots
+        # 如果是平仓，优先使用close_lot；否则使用lots→Lots若为None,则直接利用okx库获取当前持仓或者保底的long_lots/short_lots
         if action in ("平多", "平空"):
             if close_lot is not None:
                 lots = close_lot
