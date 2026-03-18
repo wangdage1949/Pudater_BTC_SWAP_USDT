@@ -1,6 +1,7 @@
 # V1.0.3更新说明
 
-<img width="451" height="543" alt="image" src="https://github.com/user-attachments/assets/9fc4371d-51b8-4674-af49-16228c7613d0" />
+<img width="504" height="555" alt="image" src="https://github.com/user-attachments/assets/c01e89db-d004-4872-80e1-45e6ce31a1fa" />
+
 
 
 1.修复了普达特平仓信号，新增 Close Lot 参数的识别功能（重要）
