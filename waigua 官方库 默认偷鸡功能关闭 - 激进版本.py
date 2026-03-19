@@ -2,6 +2,7 @@
 --------普达特信号群跟单机器人-----
 v2026.3.18更新
 1.新增平仓close lot 标志识别 （重要）
+2.新增bucang 标志，在偷鸡状态下，偷偷补仓的张数。默认 bucang = 2
 -----------------------------
 V2026.3.11更新
 1.优化了跟单平仓的数量
@@ -61,6 +62,7 @@ secret_key = '22222'
 passphrase = '22222'
 flag = '0'  # 0 实盘，1 模拟盘
 leverage = 10 #默认1倍  解释（ 0.1BTC * 10 = 1张 ）
+bucang = 2 # 开启偷鸡功能后，默认补仓张数
 
 #---------------------- 初始化客户端 ---------------------------------
 #accountAPI = AccountAPI(api_key, secret_key, passphrase, True, flag)
@@ -282,7 +284,7 @@ async def monitor_long_positions(symbol):
 
                 #如果当前多单持仓小于2张，同时亏损大于500，自行补仓2张
                 elif long_quantity < 2 and loss_duo >= 500:  # 持仓大于0小于3且亏损大于100
-                    await handle_replenish(symbol, long_positions, real_time_price, loss_duo, "多" ,2)
+                    await handle_replenish(symbol, long_positions, real_time_price, loss_duo, "多" ,bucang)
                     await asyncio.sleep(1)  # 每轮条件满足，执行后歇1秒，防止仓位未更新多条件触发
 
                 await asyncio.sleep(0.5)  # 让出控制权
@@ -354,7 +356,7 @@ async def monitor_short_positions(symbol):
 
                 # 如果当前空单持仓小于2张，并且亏损大于500，自行补仓2张
                 elif short_quantity < 2 and loss_kong >= 500:  # 持仓大于0小于3且亏损大于100,补仓
-                    await handle_replenish(symbol, short_positions, real_time_price, loss_kong,"空", 2)
+                    await handle_replenish(symbol, short_positions, real_time_price, loss_kong,"空", bucang)
                     await asyncio.sleep(1)  # 每轮条件满足，执行后歇1秒，防止仓位未更新多条件触发
 
                 await asyncio.sleep(0.5)  # 让出控制权
