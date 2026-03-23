@@ -692,50 +692,46 @@ def parse_new_signal(text):
     if not lines:
         return None
 
-    if not lines[0].startswith('Fast Version'):
-        return None
-
     action = None
-    symbol = None
+    symbol = "BTC-USDT-SWAP"  # 默认BTC，需要其他币种再扩展
     lots = None
-    close_lot = None  # 新增变量
 
     for line in lines:
         line = line.strip()
-        if line.startswith('[Open Sell]'):
-            action = "开空"
-        elif line.startswith('[Close Sell]'):
-            action = "平空"
-        elif line.startswith('[Open Buy]'):
-            action = "开多"
-        elif line.startswith('[Close Buy]'):
-            action = "平多"
-        elif line.startswith('Symbol:'):
-            base = line.split(':', 1)[1].strip()
-            if base.endswith('-USDT-SWAP'):
-                symbol = base
-            else:
-                symbol = f"{base}-USDT-SWAP"
-        elif line.startswith('Lots:'):
-            try:
-                lots = float(line.split(':', 1)[1].strip())
-                lots = round(lots * leverage, 1)
-            except ValueError:
-                pass
-        elif line.startswith('Close Lot:'):  # 新增解析
-            try:
-                close_lot = float(line.split(':', 1)[1].strip())
-                close_lot = round(close_lot * leverage, 1)
-            except ValueError:
-                pass
 
-    if action and symbol is not None:
-        # 如果是平仓，优先使用close_lot；否则使用lots
-        if action in ("平多", "平空"):
-            if close_lot is not None:
-                lots = close_lot
-            # 如果close_lot为None，保持原有lots（可能为None）
+        # ========== 识别操作类型 ==========
+        if "首次开多" in line or "多仓加仓" in line:
+            action = "开多"
+        elif "首次开空" in line or "空仓加仓" in line:
+            action = "开空"
+        elif "平多" in line or "多单做T" in line:
+            action = "平多"
+        elif "平空" in line or "空单做T" in line:
+            action = "平空"
+
+        # ========== 识别数量 ==========
+        # 开仓/加仓数量
+        for prefix in ["开仓数量:", "加仓数量:"]:
+            if line.startswith(prefix):
+                try:
+                    val = line.split(":", 1)[1].strip()
+                    lots = round(float(val) * leverage, 1)
+                except:
+                    pass
+
+        # 平仓数量（兼容中英文冒号）
+        for prefix in ["平仓数量:", "平仓数量：", "已平数量:", "已平数量："]:
+            if line.startswith(prefix):
+                try:
+                    val = line.split(prefix[0], 1)[1].strip()
+                    val = val.replace("张", "").strip()
+                    lots = round(float(val) * leverage, 1)
+                except:
+                    pass
+
+    if action and lots is not None:
         return action, lots, symbol
+
     return None
 
 
