@@ -13,7 +13,7 @@ V2026.3.11更新
 6.补仓逻辑已删除
 7.修改了跟单倍数策略（此处默认开仓单位为张数，不是BTC，请确认！！！普哥信号0.1 单位： BTC 对应信号转换 ---------- 0.1 * leverage（默认10） = 1 单位：张，请根据实际保证金自行调整。
 8.修复了全部平仓无LOTS返回的窘境
-POWER By 王大哥 Telegrame: wangdage1949
+POWER By 王大哥 Telegrame: wangdage1949  王大哥信号群： https://t.me/+JFL614zYhFRiYzA1
 需要安装的库 pip install asyncio telethon ccxt nest_asyncio pytz python-okx
 """
 
@@ -694,56 +694,53 @@ async def place_order(client, symbol, action, amount):
         return None
 
 # 新增解析信号逻辑
-def parse_new_signal(text):
+def _new_signal(text):
     lines = text.strip().split('\n')
     if not lines:
-        return None
-
-    if not lines[0].startswith('Fast Version'):
         return None
 
     action = None
     symbol = None
     lots = None
-    close_lot = None  # 新增变量
+    close_lot = None  # 平仓数量变量，兼容新旧格式
 
-    for line in lines:
-        line = line.strip()
-        if line.startswith('[Open Sell]'):
-            action = "开空"
-        elif line.startswith('[Close Sell]'):
-            action = "平空"
-        elif line.startswith('[Open Buy]'):
-            action = "开多"
-        elif line.startswith('[Close Buy]'):
-            action = "平多"
-        elif line.startswith('Symbol:'):
-            base = line.split(':', 1)[1].strip()
-            if base.endswith('-USDT-SWAP'):
-                symbol = base
-            else:
-                symbol = f"{base}-USDT-SWAP"
-        elif line.startswith('Lots:'):
-            try:
-                lots = float(line.split(':', 1)[1].strip())
-                lots = round(lots * leverage, 1)
-            except ValueError:
-                pass
-        elif line.startswith('Close Lot:'):  # 新增解析
-            try:
-                close_lot = float(line.split(':', 1)[1].strip())
-                close_lot = round(close_lot * leverage, 1)
-            except ValueError:
-                pass
-
-    if action and symbol is not None:
-        # 如果是平仓，优先使用close_lot；否则使用lots
-        if action in ("平多", "平空"):
-            if close_lot is not None:
-                lots = close_lot
-            # 如果close_lot为None，保持原有lots（可能为None）
-        return action, lots, symbol
-    return None
+    # ---------------------- 分支1：解析你当前使用的【中文新信号格式】（截图里的格式） ----------------------
+    if lines[0].startswith('激进版AI 1.0'):
+        for line in lines:
+            line = line.strip()
+            # 1. 解析交易方向
+            if line == '市价开空':
+                action = "开空"
+            elif line == '市价开多':
+                action = "开多"
+            elif line == '空单平仓':
+                action = "平空"
+            elif line == '多单平仓':
+                action = "平多"
+            
+            # 2. 解析交易品种，自动拼接永续合约后缀
+            elif line.startswith('交易品种:'):
+                base = line.split(':', 1)[1].strip()
+                if base.endswith('-USDT-SWAP'):
+                    symbol = base
+                else:
+                    symbol = f"{base}-USDT-SWAP"
+            
+            # 3. 解析开仓数量（开空/开多）
+            elif line.startswith('开空数量:') or line.startswith('开多数量:'):
+                try:
+                    lots = float(line.split(':', 1)[1].strip())
+                    lots = round(lots * leverage, 1)
+                except ValueError:
+                    pass
+            
+            # 4. 解析平仓数量
+            elif line.startswith('平仓数量:'):
+                try:
+                    close_lot = float(line.split(':', 1)[1].strip())
+                    close_lot = round(close_lot * leverage, 1)
+                except ValueError:
+                    pass
 
 
 # 处理消息函数
