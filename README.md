@@ -1,11 +1,10 @@
-# 王大哥量化交易机器人回测展示
-
 
 “”
 
 # V1.0.4更新说明
 
 <img width="514" height="578" alt="image" src="https://github.com/user-attachments/assets/d3d5c6ee-3d38-4056-8e5d-b7b11c9f52d1" />
+修复了 parse_new_signal 函数名称错误
 
 
 
