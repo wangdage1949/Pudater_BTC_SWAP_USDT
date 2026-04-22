@@ -694,7 +694,7 @@ async def place_order(client, symbol, action, amount):
         return None
 
 # 新增解析信号逻辑
-def _new_signal(text):
+def parse_new_signal(text):
     lines = text.strip().split('\n')
     if not lines:
         return None
