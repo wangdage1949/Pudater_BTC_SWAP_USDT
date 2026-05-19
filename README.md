@@ -209,7 +209,7 @@ async def handle_message(message, client): 监听函数：自行修改实际开�
 
 <img width="544" height="698" alt="image" src="https://github.com/user-attachments/assets/616223e5-5e7c-4065-8767-0734502f8da5" />
 
-最后，希望能获得您对我的关注 ：https://x.com/hhltz8848
+最后，希望能获得您对我的关注 ：https://x.com/wangdage1949
 
 # 王大哥量化交易机器人V2.0.1 寻求资金合作
 
