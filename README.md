@@ -211,9 +211,10 @@ async def handle_message(message, client): 监听函数：自行修改实际开�
 
 最后，希望能获得您对我的关注 ：https://x.com/hhltz8848
 
-# 王大哥量化交易机器人V1.0.5.2 寻求资金合作
+# 王大哥量化交易机器人V2.0.1 寻求资金合作
 
-<img width="1354" height="1195" alt="image" src="https://github.com/user-attachments/assets/73053205-b16f-4b87-b531-65d630857e9f" />
+<img width="1376" height="747" alt="image" src="https://github.com/user-attachments/assets/b96918c7-5962-4255-ace6-bbb152485239" />
+
 
 # 危险信号展示
 <img width="1304" height="1174" alt="image" src="https://github.com/user-attachments/assets/1fad0327-e771-40d8-85ce-137d1f1ed8da" />
