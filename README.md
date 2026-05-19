@@ -5,6 +5,8 @@
 支持多个交易所跟单（币安、欧意、芝麻、bitget、bitmark、huobi 支持定制）
 exe可执行文件，json配置好API，即可双击运行。支持第三方信号转发，比如群1信号毫秒级别转发到群2.
 
+https://t.me/wangdage1949
+
 # V1.0.4更新说明
 
 <img width="514" height="578" alt="image" src="https://github.com/user-attachments/assets/d3d5c6ee-3d38-4056-8e5d-b7b11c9f52d1" />
